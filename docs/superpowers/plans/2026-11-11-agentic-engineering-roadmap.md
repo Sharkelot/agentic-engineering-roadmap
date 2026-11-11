@@ -121,7 +121,7 @@
 
 **Interfaces:** `write_run(run: EvaluationRun, output_dir: Path) -> None` writes `run.json`, `trials.jsonl`, and `summary.json` via a sibling temporary directory and atomic rename; it must refuse any already-existing target path (empty or non-empty directory or file) without modifying it. `load_run(input_dir: Path) -> EvaluationRun` validates these artifacts before comparison. CLI commands: `agent-eval run --cases PATH --out DIR` and `agent-eval compare --baseline DIR --candidate DIR --max-regression FLOAT`; comparison exits 0 on pass and nonzero on a regression or incompatible run metadata.
 
-- [ ] Write tests for artifact round-trip, malformed input, and CLI exit codes; test that both empty and non-empty existing output directories remain untouched and cause `FileExistsError`.
+- [ ] Write tests for artifact round-trip, malformed input, and CLI exit codes, including exit 2 for incompatible run metadata; test that both empty and non-empty existing output directories remain untouched and cause `FileExistsError`.
 - [ ] Run the targeted tests; confirm failures.
 - [ ] Implement atomic JSON/JSONL output and argparse entry point.
 - [ ] Run tests and a deterministic sample command; inspect the produced artifacts.
@@ -168,9 +168,9 @@
 - Create: `Dockerfile`, `.dockerignore`, `.github/workflows/ci.yml`, `deploy/kubernetes/eval-job.yaml`, `tests/test_deployment.py`
 - Modify: `README.md`, `ROADMAP.md`, `pyproject.toml`, `scripts/validate_course.py`
 
-**Interfaces:** The runtime image uses Python 3.12, installs only the project runtime dependencies and synthetic fixture, runs as a non-root user, and exposes the existing `agent-eval` CLI. Add `python -m scripts.validate_course` (and `validate-course` entry point) for offline lesson validation. Add `PyYAML>=6.0.3,<7` as a development-only dependency and parse YAML with `yaml.safe_load`; it is not in the runtime image. The optional Kubernetes Job uses the same local image reference as the Docker example, a writable temporary artifact volume, `fsGroup: 10001` for the non-root writer, and no credentials or cluster requirement.
+**Interfaces:** The runtime image uses Python 3.12, installs only the project runtime dependencies and synthetic fixture, runs as a non-root user, and exposes the existing `agent-eval` CLI. Add `python -m scripts.validate_course` (and `validate-course` entry point) for offline lesson validation. Add `PyYAML>=6.0.3,<7` as a development-only dependency and parse YAML with `yaml.safe_load`; it is not in the runtime image. The CI workflow grants only `contents: read` and pins the official checkout/setup-python actions to immutable SHAs (`actions/checkout` v7.0.1 `3d3c42e5aac5ba805825da76410c181273ba90b1`; `actions/setup-python` v7.1.0 `6d4fd22b20465ccc0f7354476588e8df7c9ca0e0`). The optional Kubernetes Job uses the same local image reference as the Docker example, a writable temporary artifact volume, `fsGroup: 10001` for the non-root writer, and no credentials or cluster requirement.
 
-- [ ] Add tests `test_readme_quickstart_paths_exist`, `test_course_validator_cli`, `test_workflow_contains_required_checks_and_no_secrets`, `test_dockerfile_runs_nonroot`, and `test_kubernetes_job_structure`; verify README paths/commands and sample dataset exist, workflow installs `.[dev,local-http]` and has Python 3.12/pytest/Ruff/mypy/course validation/deterministic CLI checks without secrets, and parsed Job kind/image/security/`fsGroup: 10001`/artifact mount are correct.
+- [ ] Add tests `test_readme_quickstart_paths_exist`, `test_course_validator_cli`, `test_workflow_contains_required_checks_and_no_secrets`, `test_dockerfile_runs_nonroot`, and `test_kubernetes_job_structure`; verify README paths/commands and sample dataset exist, workflow installs `.[dev,local-http]`, grants only `contents: read`, pins the named official actions to the specified SHAs, and has Python 3.12/pytest/Ruff/mypy/course validation/deterministic CLI checks without secrets; parsed Job kind/image/security/`fsGroup: 10001`/artifact mount are correct.
 - [ ] Run focused tests first; confirm they fail for absent deployment files/CLI, then implement the files and validator entry points.
 - [ ] CI installs `.[dev,local-http]` on Python 3.12 and runs pytest (including mocked optional-adapter tests), Ruff, `mypy src scripts`, course validation, and deterministic synthetic evaluation; no API credentials or remote services.
 - [ ] Build a non-root `python:3.12-slim` image with only required application/data files. Add `.dockerignore` rules excluding `.git`, `.worktrees`, `.superpowers`, `.venv`, `.cache`, and secret files.
@@ -184,8 +184,9 @@
 **Files:** all public repository files; remote `Sharkelot/agentic-engineering-roadmap` if available.
 
 - [ ] Run the full test, lint, type-check, lesson-validation, and sample-evaluation commands.
+- [ ] Align README CI/dependency and type-check scope statements with the workflow and actual commands.
 - [ ] Scan staged files for likely secrets, employer/customer names, and private project paths; correct any finding before publishing.
 - [ ] Scan the tracked tree and commit history for internal SDD artifacts (`.superpowers/`); remove them from the unpublished history before creating or pushing the public remote.
 - [ ] Verify `gh auth status` and `gh api user --jq .login` identify `Sharkelot`; check that the proposed public repository name is available. If authentication cannot be verified, stop and ask the user to connect GitHub.
-- [ ] Create the public remote, push `main`, and verify the exact repository URL, visibility, pushed commit, and CI run by reading them back.
+- [ ] After the verified account is `Sharkelot` and the name is available, create the empty public remote and push only the sanitized feature HEAD explicitly as `refs/heads/main`; never push the local `main` ref or all branches. Read back the exact repository URL, visibility, default branch, pushed commit, and CI run.
 - [ ] Report the repo URL, course contents, verification results, and any remaining blockers.
