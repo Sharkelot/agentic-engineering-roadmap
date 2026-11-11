@@ -34,7 +34,7 @@
 
 **Files:**
 - Create: `README.md`, `ROADMAP.md`, `pyproject.toml`, `.gitignore`
-- Create: `docs/superpowers/specs/2026-11-11-agentic-engineering-roadmap-design.md`
+- Keep and verify: `docs/superpowers/specs/2026-11-11-agentic-engineering-roadmap-design.md` (already present in the approved planning baseline)
 - Create: `lessons/_TEMPLATE.md`, `progress/CHECKLIST.md`, `references/reading-list.md`
 - Create: `scripts/validate_course.py`, `tests/test_course_structure.py`
 
