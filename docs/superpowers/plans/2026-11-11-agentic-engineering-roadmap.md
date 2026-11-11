@@ -165,14 +165,19 @@
 ### Task 8: Container, CI, and optional Kubernetes exercise
 
 **Files:**
-- Create: `Dockerfile`, `.dockerignore`, `.github/workflows/ci.yml`, `deploy/kubernetes/eval-job.yaml`
-- Modify: `README.md`, `ROADMAP.md`
+- Create: `Dockerfile`, `.dockerignore`, `.github/workflows/ci.yml`, `deploy/kubernetes/eval-job.yaml`, `tests/test_deployment.py`
+- Modify: `README.md`, `ROADMAP.md`, `pyproject.toml`, `scripts/validate_course.py`
 
-- [ ] Add tests/assertions that the documented quickstart and sample dataset paths exist.
-- [ ] Add CI steps for Python 3.12, pytest, Ruff, mypy, course validation, and deterministic sample evaluation; no secrets.
-- [ ] Add a non-privileged container for the deterministic CLI and an optional Kubernetes Job manifest using the same image.
-- [ ] Run local checks and `docker build` if Docker is available; validate the manifest structurally without requiring a live cluster.
-- [ ] Commit deployment and CI materials.
+**Interfaces:** The runtime image uses Python 3.12, installs only the project runtime dependencies and synthetic fixture, runs as a non-root user, and exposes the existing `agent-eval` CLI. Add `python -m scripts.validate_course` (and `validate-course` entry point) for offline lesson validation. Add `PyYAML>=6.0.3,<7` as a development-only dependency and parse YAML with `yaml.safe_load`; it is not in the runtime image. The optional Kubernetes Job uses the same local image reference as the Docker example, a writable temporary artifact volume, and no credentials or cluster requirement.
+
+- [ ] Add tests `test_readme_quickstart_paths_exist`, `test_course_validator_cli`, `test_workflow_contains_required_checks_and_no_secrets`, `test_dockerfile_runs_nonroot`, and `test_kubernetes_job_structure`; verify README paths/commands and sample dataset exist, workflow has Python 3.12/pytest/Ruff/mypy/course validation/deterministic CLI checks without secrets, and parsed Job kind/image/security/artifact mount are correct.
+- [ ] Run focused tests first; confirm they fail for absent deployment files/CLI, then implement the files and validator entry points.
+- [ ] CI installs `.[dev]` on Python 3.12 and runs pytest, Ruff, `mypy src scripts`, course validation, and deterministic synthetic evaluation; no API credentials or remote services.
+- [ ] Build a non-root `python:3.12-slim` image with only required application/data files. Add `.dockerignore` rules excluding `.git`, `.worktrees`, `.superpowers`, `.venv`, `.cache`, and secret files.
+- [ ] Run `docker build` and a local container smoke evaluation if Docker is available; verify output is written locally and the container uses the deterministic adapter.
+- [ ] Validate the Kubernetes YAML structurally with `safe_load` and tests; do not contact a live cluster or registry.
+- [ ] Update README and roadmap with local quickstart, Docker build/run, CI checks, optional Job instructions, and the no-secret/no-paid-service guardrails; commit deployment and CI materials.
+
 
 ### Task 9: Final review and GitHub publication
 
