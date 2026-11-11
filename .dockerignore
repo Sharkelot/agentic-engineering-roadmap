@@ -1,0 +1,14 @@
+# Build context exclusions
+.git
+.worktrees
+.superpowers
+.venv
+.cache
+__pycache__
+*.py[cod]
+.env
+.env.*
+*.pem
+*.key
+*secret*
+*credentials*

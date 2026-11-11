@@ -4,11 +4,36 @@ An independent learning project; not affiliated with NVIDIA or any employer. Thi
 
 ## Course
 
-See [ROADMAP.md](ROADMAP.md) for the eight-week plan. Lessons use deterministic local fixtures by default; no paid API, GPU, or secret is required. The optional HTTP model adapter is tested against a local mock.
+See [ROADMAP.md](ROADMAP.md) for the eight-week plan. Lessons use deterministic local fixtures by default; no paid API, GPU, secret, account, or remote service is required.
 
-## Setup
+## Local quickstart (Python 3.12)
 
-Requires Python 3.12. Install development tools with `python -m pip install -e '.[dev]'`, then run `python -m pytest` and `ruff check .`. Do not publish secrets or private data.
+```sh
+python -m pip install -e '.[dev]'
+python -m scripts.validate_course
+python -m pytest
+ruff check .
+mypy src scripts
+agent-eval run --cases synthetic-data/support_cases.jsonl --out ./artifacts/local-run
+```
+
+The commands read the checked-in synthetic dataset only. Choose a new output path for each run. `validate-course` is also installed as a console command.
+
+## Docker
+
+```sh
+docker build -t agentic-engineering-roadmap:local .
+mkdir -p artifacts
+docker run --rm -v "$PWD/artifacts:/output" agentic-engineering-roadmap:local
+```
+
+The image is built from the repository `Dockerfile`, runs as a non-root user, and uses the deterministic adapter. `.dockerignore` excludes worktrees, development metadata, caches, and likely secret files.
+
+## CI and optional Kubernetes exercise
+
+CI on Python 3.12 installs `.[dev]` and runs pytest, Ruff, mypy on source/scripts, offline course validation, and a deterministic synthetic evaluation. It uses no credentials or remote model services.
+
+For the optional Kubernetes Job, build the local image above, then apply `deploy/kubernetes/eval-job.yaml` to a cluster where that image is available. It writes to a temporary `emptyDir`; artifacts are ephemeral. This is an optional local exercise, not needed for the course; do not push to a registry or add credentials.
 
 ## References
 

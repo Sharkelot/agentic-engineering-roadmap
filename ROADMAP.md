@@ -14,3 +14,7 @@ A self-study sequence using the repository's deterministic evaluation package an
 Use the [glossary](study-guides/glossary.md), [evaluation checklist](study-guides/evaluation-checklist.md), and [answer hints](solutions/README.md). Try each week's work before viewing hints.
 
 The default course is local and deterministic. No paid API, GPU, account, or secret is required. Use synthetic support cases only; never include employer, customer, internal, confidential, or private project data/code, employer names, or private portfolio links. This independent learning project is not affiliated with NVIDIA or any employer. No license is granted by this curriculum.
+
+## Local validation and optional deployment
+
+Run `python -m scripts.validate_course` to validate every weekly lesson offline; install the `validate-course` command with `python -m pip install -e '.[dev]'`. The local deterministic quickstart and Docker build/run commands are in [README.md](README.md). CI checks pytest, Ruff, mypy (`src scripts`), course validation, and a synthetic sample evaluation on Python 3.12. The optional Job at `deploy/kubernetes/eval-job.yaml` uses the local image and ephemeral output storage; apply it only to a cluster where the image is already available. No registry, credentials, paid service, or live cluster is needed for course validation.

@@ -10,9 +10,10 @@ dependencies = ["pydantic>=2,<3"]
 
 [project.scripts]
 agent-eval = "agent_eval_lab.cli:main"
+validate-course = "scripts.validate_course:main"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "PyYAML>=6.0.3,<7"]
 local-http = ["httpx>=0.28,<1"]
 
 [tool.setuptools.packages.find]
