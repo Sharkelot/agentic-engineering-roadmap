@@ -1,7 +1,7 @@
 # Design: Agentic Engineering Learning Repository
 
 ## Intent
-Create a public GitHub course the learner can work through to build toward agent-evaluation/platform engineering roles such as agent-evaluation and platform engineering roles. Personalize the learning sequence to a learner's general interest in software systems and agent evaluation; keep the public course and capstone generic unless the user separately approves project links or attribution.
+Create a public GitHub course that teaches agent-evaluation and platform engineering through a source-grounded, hands-on sequence. Keep public materials generic and grounded in synthetic support-agent cases.
 
 ## Audience and starting point
 For learners with existing technical or systems-building experience who want a Python-first path into agent evaluation, observability, reliability, and production deployment rather than a generic programming introduction.
@@ -19,7 +19,7 @@ For learners with existing technical or systems-building experience who want a P
 - Include progress tracking and knowledge checks that support retrieval practice and continued study.
 
 ## Non-goals / guardrails
-- Do not copy employer, customer, internal, or other confidential data/code; capstone cases are synthetic.
+- Do not use or publish employer, customer, internal, confidential, or other proprietary data/code; capstone cases are synthetic.
 - Do not name an employer or publish work artifacts, private project details, or portfolio links unless the user explicitly approves them; never publish secrets or credentials.
 - Do not teach model training or CUDA as core requirements; they are not the main gap for this role.
 - Do not claim the course guarantees a job or substitutes for the posting's professional-experience requirement.
