@@ -119,9 +119,9 @@
 - Modify: `pyproject.toml`
 - Test: `tests/test_artifacts.py`, `tests/test_cli.py`
 
-**Interfaces:** `write_run(run: EvaluationRun, output_dir: Path) -> None` writes `run.json`, `trials.jsonl`, and `summary.json` atomically; `load_run(input_dir: Path) -> EvaluationRun` validates these artifacts before comparison. CLI commands: `agent-eval run --cases PATH --out DIR` and `agent-eval compare --baseline DIR --candidate DIR --max-regression FLOAT`; comparison exits 0 on pass and nonzero on a regression or incompatible run metadata.
+**Interfaces:** `write_run(run: EvaluationRun, output_dir: Path) -> None` writes `run.json`, `trials.jsonl`, and `summary.json` via a sibling temporary directory and atomic rename; it must refuse any already-existing target path (empty or non-empty directory or file) without modifying it. `load_run(input_dir: Path) -> EvaluationRun` validates these artifacts before comparison. CLI commands: `agent-eval run --cases PATH --out DIR` and `agent-eval compare --baseline DIR --candidate DIR --max-regression FLOAT`; comparison exits 0 on pass and nonzero on a regression or incompatible run metadata.
 
-- [ ] Write tests for artifact round-trip, output-directory behavior, malformed input, and CLI exit codes.
+- [ ] Write tests for artifact round-trip, malformed input, and CLI exit codes; test that both empty and non-empty existing output directories remain untouched and cause `FileExistsError`.
 - [ ] Run the targeted tests; confirm failures.
 - [ ] Implement atomic JSON/JSONL output and argparse entry point.
 - [ ] Run tests and a deterministic sample command; inspect the produced artifacts.
