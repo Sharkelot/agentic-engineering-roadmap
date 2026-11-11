@@ -134,12 +134,12 @@
 - Modify: `pyproject.toml`
 - Test: `tests/test_http_adapter.py`
 
-**Interfaces:** Optional `local-http` extra installs `httpx>=0.28,<1`. `OpenAICompatibleAdapter(base_url: str, model: str, timeout_seconds: float = 10.0, transport: httpx.AsyncBaseTransport | None = None)` accepts only loopback hosts (`localhost`, `127.0.0.1`, `::1`), disables environment proxy settings (`trust_env=False`), and sends no auth token. It posts to `/chat/completions` with the case prompt/evidence; the assistant content must be JSON containing `answer`, `route`, `citation_ids`, `tool_calls`, and `abstained`; the adapter measures `latency_ms` and sets `error=None` before validating `AgentResponse`. Tests inject `httpx.MockTransport`; no real endpoint is called.
+**Interfaces:** Optional `local-http` extra installs `httpx>=0.28,<1`. `OpenAICompatibleAdapter(base_url: str, model: str, timeout_seconds: float = 10.0, transport: httpx.AsyncBaseTransport | None = None)` accepts only absolute HTTP(S) URLs whose case-normalized host is `localhost`, `127.0.0.1`, or `::1`; rejects URL credentials, query strings, and fragments; constructs `httpx.AsyncClient` with `trust_env=False`; and sends no auth token. It posts the case prompt/evidence to `/chat/completions`; assistant content must be a JSON object with `answer`, `route`, `citation_ids`, `tool_calls`, and `abstained`. It measures `latency_ms` and sets `error=None` before validating `AgentResponse`. HTTPX connection, timeout, and status exceptions propagate. Malformed JSON or response shape raises `ValueError("Invalid OpenAI-compatible response payload")` without prompt/response contents. The module remains importable without HTTPX; constructing the adapter then raises an actionable `ImportError` naming the extra. Tests use `httpx.MockTransport` only; no real endpoint is called.
 
-- [ ] Write tests using a mocked transport for valid output, malformed response, connection failure, timeout, absent optional dependency, non-loopback rejection, and absence of auth/proxy use.
-- [ ] Run the targeted tests with and without the extra; confirm expected behavior.
+- [ ] Add named tests for valid mapping/latency; case-insensitive loopback acceptance; rejection of external hosts, non-HTTP(S) schemes, embedded credentials, query and fragment; sanitized `ValueError` on malformed JSON/schema; propagation of connection, timeout, and HTTP-status exceptions; no Authorization header and `trust_env=False`; and actionable import/constructor behavior when HTTPX is absent.
+- [ ] Run adapter tests in a verified environment without HTTPX and with the `local-http` extra; report the result and whether HTTPX is actually installed in each environment.
 - [ ] Implement the adapter and safe configuration examples using an obviously local URL.
-- [ ] Run tests; confirm no real network call was made.
+- [ ] Run full tests, Ruff, and mypy; confirm no real network call was made.
 - [ ] Commit the optional adapter.
 
 ### Task 7: Eight source-grounded lessons and study materials
