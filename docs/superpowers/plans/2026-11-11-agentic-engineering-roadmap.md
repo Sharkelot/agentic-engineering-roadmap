@@ -134,9 +134,9 @@
 - Modify: `pyproject.toml`
 - Test: `tests/test_http_adapter.py`
 
-**Interfaces:** Optional `local-http` extra installs httpx. `OpenAICompatibleAdapter(base_url: str, model: str, timeout_seconds: float = 10.0)` targets a configurable local base URL, posting to `/chat/completions`; no API token or external network is required by the default suite. It maps one case to a user message and validates the response into `AgentResponse`. Tests use `httpx.MockTransport`, never a real model endpoint.
+**Interfaces:** Optional `local-http` extra installs `httpx>=0.28,<1`. `OpenAICompatibleAdapter(base_url: str, model: str, timeout_seconds: float = 10.0, transport: httpx.AsyncBaseTransport | None = None)` accepts only loopback hosts (`localhost`, `127.0.0.1`, `::1`), disables environment proxy settings (`trust_env=False`), and sends no auth token. It posts to `/chat/completions` with the case prompt/evidence; the assistant content must be JSON containing `answer`, `route`, `citation_ids`, `tool_calls`, and `abstained`; the adapter measures `latency_ms` and sets `error=None` before validating `AgentResponse`. Tests inject `httpx.MockTransport`; no real endpoint is called.
 
-- [ ] Write tests using a mocked transport for valid output, malformed response, connection failure, and absent optional dependency.
+- [ ] Write tests using a mocked transport for valid output, malformed response, connection failure, timeout, absent optional dependency, non-loopback rejection, and absence of auth/proxy use.
 - [ ] Run the targeted tests with and without the extra; confirm expected behavior.
 - [ ] Implement the adapter and safe configuration examples using an obviously local URL.
 - [ ] Run tests; confirm no real network call was made.
