@@ -33,7 +33,7 @@ For each item cite the actual function or test that would change, plus one test 
 Which reliability failure would most distort your evaluation if it disappeared from the report?
 
 ## Done when
-- [ ] Your synthetic failure-flow sketch identifies timeout/cancellation and artifact behavior.
+- [ ] Your synthetic failure-flow/design table cites actual runner/artifact functions and specifies a test assertion for each reliability concern.
 - [ ] Retry handling is explicitly marked out of v1 scope; cancellation, sharding, and resume retain expected trial accounting.
 - [ ] No source changes or external service calls are made.
 - [ ] Attempt the exercise and quiz before opening [answer hints](../solutions/README.md); ask follow-up questions as needed.
