@@ -2,9 +2,11 @@ from pathlib import Path
 
 REQUIRED_HEADINGS = (
     "Objectives",
+    "Prerequisites",
     "Read",
     "Build",
     "Check your understanding",
+    "Reflection",
     "Done when",
 )
 
