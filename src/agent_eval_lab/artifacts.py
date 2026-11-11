@@ -11,6 +11,8 @@ from .models import EvaluationRun
 
 def write_run(run: EvaluationRun, output_dir: Path) -> None:
     output_dir = Path(output_dir)
+    if output_dir.exists() or output_dir.is_symlink():
+        raise FileExistsError(output_dir)
     output_dir.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=f".{output_dir.name}.", dir=output_dir.parent))
     try:

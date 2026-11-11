@@ -35,6 +35,23 @@ def test_write_run_refuses_existing_directory_without_modifying_it(tmp_path: Pat
     assert marker.read_text() == "kept"
 
 
+def test_write_run_refuses_empty_existing_directory_without_modifying_it(tmp_path: Path) -> None:
+    destination = tmp_path / "run"
+    destination.mkdir()
+    with pytest.raises(FileExistsError):
+        write_run(sample(), destination)
+    assert list(destination.iterdir()) == []
+
+
+def test_write_run_refuses_existing_file_without_modifying_it(tmp_path: Path) -> None:
+    destination = tmp_path / "run"
+    destination.write_text("keep")
+    with pytest.raises(FileExistsError):
+        write_run(sample(), destination)
+    assert destination.is_file()
+    assert destination.read_text() == "keep"
+
+
 def test_load_run_rejects_malformed_or_inconsistent_artifacts(tmp_path: Path) -> None:
     destination = tmp_path / "run"
     write_run(sample(), destination)
