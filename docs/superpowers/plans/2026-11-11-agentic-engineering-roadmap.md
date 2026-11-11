@@ -147,16 +147,19 @@
 **Files:**
 - Create: `lessons/week-01-python-sdk.md` through `lessons/week-08-capstone.md`
 - Create: `study-guides/glossary.md`, `study-guides/evaluation-checklist.md`, `solutions/README.md`
-- Modify: `references/reading-list.md`, `ROADMAP.md`, `progress/CHECKLIST.md`
+- Modify: `lessons/_TEMPLATE.md`, `scripts/validate_course.py`, `tests/test_course_structure.py`, `references/reading-list.md`, `ROADMAP.md`, `progress/CHECKLIST.md`
 
-**Interfaces:** Each lesson follows `lessons/_TEMPLATE.md`, includes primary-source links, a hands-on task, verifiable acceptance criteria, a retrieval quiz, and a reflection prompt. Put answer keys/hints under `solutions/` and tell learners to attempt tasks before opening them.
+**Interfaces:** Each lesson follows `lessons/_TEMPLATE.md` and includes objectives, prerequisites, an official primary-source link, a concise original explanation, a hands-on synthetic exercise, verifiable done criteria, three retrieval questions, one reflection/next-step prompt, links to relevant course material, and a reminder to ask follow-up questions. Add `## Prerequisites` and `## Reflection` to the template and validator; ordinary validation never fetches the network. `solutions/README.md` contains answer keys/hints, and every lesson tells learners to attempt its quiz/exercise before opening solutions.
 
-- [ ] Add lesson-structure tests for all eight weeks and verify every lesson has a reading, exercise, and done checklist.
-- [ ] Run the course validator and tests; confirm failures for any incomplete lesson.
-- [ ] Write lessons in the approved sequence: Python/API; schemas/data; evaluation design; metrics/regression; OpenTelemetry; orchestration/reliability; Docker/Kubernetes/CI; capstone/storytelling.
-- [ ] Review each external link against official documentation and record the source in `references/reading-list.md`.
-- [ ] Run the validator and test suite; confirm all lessons pass.
+- [ ] Add tests named `test_all_eight_lessons_have_required_sections_and_source_links`, `test_validator_rejects_missing_reflection`, and `test_each_lesson_has_three_retrieval_questions_and_reflection_prompt`; assert all eight expected files exist, have `Objectives`, `Prerequisites`, `Read`, `Build`, `Check your understanding`, `Reflection`, and `Done when` sections, include external and internal links, contain three numbered retrieval questions plus a nonempty reflection prompt, and name the synthetic exercise acceptance criteria.
+- [ ] Run `uv run --python 3.12 --extra dev python -m pytest tests/test_course_structure.py -q`; confirm failures for missing lesson files/Prerequisites/Reflection before implementation.
+- [ ] Update the template and course validator, then write lessons in the approved sequence: Python/API; schemas/data; evaluation design; metrics/regression; OpenTelemetry; orchestration/reliability; Docker/Kubernetes/CI; capstone/storytelling.
+- [ ] Review every external link against its official documentation and record its week/relevance in `references/reading-list.md`; Week 4 must include a primary evaluation-scoring reference (e.g. the official scikit-learn F1 documentation), not only monitoring metrics. Keep explanations original and note hosted/deprecated services as optional reading only.
+- [ ] Add a glossary and evaluator checklist; put answer keys/hints in `solutions/README.md` and point learners to try first.
+- [ ] Update `ROADMAP.md` and `progress/CHECKLIST.md` to match the eight approved weekly topics.
+- [ ] Run the course validator and full test suite; confirm all eight lessons pass and ordinary tests perform no network access.
 - [ ] Commit curriculum and study materials.
+
 
 ### Task 8: Container, CI, and optional Kubernetes exercise
 
