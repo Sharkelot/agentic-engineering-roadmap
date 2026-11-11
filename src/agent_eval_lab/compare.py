@@ -1,4 +1,7 @@
+import math
+
 from pydantic import BaseModel, ConfigDict
+
 from .metrics import METRIC_NAMES
 from .models import EvaluationRun
 
@@ -21,6 +24,24 @@ class ComparisonReport(BaseModel):
 
 
 def summarize(run: EvaluationRun) -> dict[str, object]:
+    if len(run.trials) != run.expected_total:
+        raise ValueError("trial count does not match expected_total")
+    seen_cases: set[str] = set()
+    for trial in run.trials:
+        if trial.case_id in seen_cases:
+            raise ValueError(f"duplicate trial for case {trial.case_id}")
+        seen_cases.add(trial.case_id)
+        names = [metric.name for metric in trial.metrics]
+        if len(names) != len(set(names)):
+            raise ValueError(f"duplicate metric result for case {trial.case_id}")
+        if set(names) != set(METRIC_NAMES):
+            raise ValueError(f"missing metric result for case {trial.case_id}")
+        for metric in trial.metrics:
+            if metric.status == "scored":
+                if metric.value is None or not math.isfinite(metric.value) or not 0.0 <= metric.value <= 1.0:
+                    raise ValueError(f"invalid metric value for {metric.name}")
+            elif metric.value is not None:
+                raise ValueError(f"unscored metric {metric.name} must not have a value")
     completed = sum(trial.status == "completed" for trial in run.trials)
     values: dict[str, list[float]] = {}
     unscored: dict[str, int] = {}
@@ -35,10 +56,11 @@ def summarize(run: EvaluationRun) -> dict[str, object]:
     for name in sorted(set(values) | set(unscored)):
         scores = values.get(name, [])
         unscored_count = unscored.get(name, 0)
-        applicable = len(scores) + unscored_count
+        applicable = len(scores)
         metrics[name] = {"mean": sum(scores) / len(scores) if scores else None,
                          "applicable_count": applicable, "scored_count": len(scores),
-                         "coverage": len(scores) / applicable if applicable else 0.0}
+                         "unscored_count": unscored_count,
+                         "coverage": len(scores) / run.expected_total if run.expected_total else 0.0}
     return {"total": run.expected_total, "completed": completed,
             "failed": sum(trial.status == "failed" for trial in run.trials), "metrics": metrics}
 
@@ -70,7 +92,10 @@ def compare_runs(baseline: EvaluationRun, candidate: EvaluationRun, *,
             if b_result.status != c_result.status:
                 raise ValueError(f"applicability mismatch for {name} case {case_id}")
             if b_result.status == "scored":
-                assert b_result.value is not None and c_result.value is not None
+                if (b_result.value is None or c_result.value is None
+                        or not math.isfinite(b_result.value) or not math.isfinite(c_result.value)
+                        or not 0.0 <= b_result.value <= 1.0 or not 0.0 <= c_result.value <= 1.0):
+                    raise ValueError(f"invalid metric value for {name} case {case_id}")
                 baseline_values[name].append(b_result.value)
                 candidate_values[name].append(c_result.value)
     comparisons: list[MetricComparison] = []
@@ -81,6 +106,8 @@ def compare_runs(baseline: EvaluationRun, candidate: EvaluationRun, *,
             delta = c_mean - b_mean
             comparisons.append(MetricComparison(name=name, baseline=b_mean, candidate=c_mean,
                                                 delta=delta, passed=delta >= -max_regression))
+    if not comparisons:
+        raise ValueError("no comparable scored metrics")
     return ComparisonReport(baseline_run_id=baseline.manifest.run_id,
                             candidate_run_id=candidate.manifest.run_id, metrics=comparisons,
                             passed=all(item.passed for item in comparisons))

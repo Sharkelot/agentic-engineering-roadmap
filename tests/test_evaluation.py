@@ -1,8 +1,11 @@
+import asyncio
 from datetime import UTC, datetime
+from unittest.mock import patch
 
+from agent_eval_lab import runner
 from agent_eval_lab.adapters import DeterministicSupportAgent
-from agent_eval_lab.runner import evaluate, run_agent_trials
 from agent_eval_lab.models import EvalCase, RunManifest
+from agent_eval_lab.runner import evaluate
 
 
 def test_evaluate_runs_trials_and_attaches_metrics() -> None:
@@ -13,12 +16,20 @@ def test_evaluate_runs_trials_and_attaches_metrics() -> None:
         metric_version="m1", created_at=datetime.now(UTC))
 
     async def execute() -> None:
-        result = await evaluate([case], DeterministicSupportAgent(), manifest=manifest)
+        real_run = runner.run_agent_trials
+        observed: list[bool] = []
+
+        async def spy(*args: object, **kwargs: object):
+            observed.append(True)
+            return await real_run(*args, **kwargs)  # type: ignore[arg-type]
+
+        with patch.object(runner, "run_agent_trials", spy):
+            result = await evaluate([case], DeterministicSupportAgent(), manifest=manifest)
+        assert observed == [True]
         assert result.expected_total == 1
         assert result.trials[0].case_id == "c1"
         assert {metric.name for metric in result.trials[0].metrics} == {
             "answer_term_support", "route_accuracy", "citation_f1", "safe_abstention",
             "expected_tool_success",
         }
-    import asyncio
     asyncio.run(execute())

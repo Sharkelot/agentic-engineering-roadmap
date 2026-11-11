@@ -2,8 +2,8 @@ import asyncio
 from collections.abc import Sequence
 
 from .adapters import AgentAdapter
-from .models import EvalCase, TrialResult, EvaluationRun, RunManifest
 from .metrics import score_trial
+from .models import EvalCase, EvaluationRun, RunManifest, TrialResult
 
 
 async def run_agent_trials(
