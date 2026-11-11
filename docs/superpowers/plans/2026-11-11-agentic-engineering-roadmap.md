@@ -52,13 +52,14 @@
 **Files:**
 - Create: `src/agent_eval_lab/models.py`, `src/agent_eval_lab/datasets.py`
 - Create: `synthetic-data/support_cases.jsonl`
+- Modify: `pyproject.toml` to include the new `src/agent_eval_lab` package while preserving `scripts` imports.
 - Test: `tests/test_models.py`, `tests/test_datasets.py`
 
 **Interfaces:** Define Pydantic v2 models with `ConfigDict(extra="forbid")`: `EvidenceRef(source_id: str, excerpt: str)`; `EvalCase(case_id: str, prompt: str, evidence: list[EvidenceRef], required_source_ids: list[str], expected_route: str | None, expected_answer_terms: list[str], expected_tool_names: list[str], should_abstain: bool, dataset_version: str)`; `ToolCallRecord(name: str, succeeded: bool, error: str | None)`; `AgentResponse(answer: str, route: str | None, citation_ids: list[str], tool_calls: list[ToolCallRecord], abstained: bool, latency_ms: float, error: str | None)`; `MetricResult(name: str, value: float | None, status: Literal["scored", "unscored"], details: dict[str, str])`, where scored values are in `[0.0, 1.0]`; `TrialResult(case_id: str, status: Literal["completed", "failed"], response: AgentResponse | None, metrics: list[MetricResult], error: str | None)`; `RunManifest(run_id: str, agent_version: str, dataset_version: str, metric_version: str, created_at: datetime)` with an aware UTC timestamp; and `EvaluationRun(manifest: RunManifest, trials: list[TrialResult], expected_total: int)`. `load_cases(path: Path) -> list[EvalCase]` reads JSONL and rejects blank/duplicate IDs and malformed rows with line-specific errors.
 
 - [ ] Write tests for valid fixtures, blank/duplicate IDs, malformed JSON, unsupported fields, and missing required data.
 - [ ] Run `python -m pytest tests/test_models.py tests/test_datasets.py -q`; confirm the expected failures.
-- [ ] Implement models and JSONL loader with explicit validation messages.
+- [ ] Implement models and JSONL loader with explicit validation messages; update setuptools discovery for the `src` package without breaking the validator package.
 - [ ] Run the targeted tests and `mypy src/agent_eval_lab/models.py src/agent_eval_lab/datasets.py`; confirm pass.
 - [ ] Commit typed domain and data loading.
 
