@@ -1,0 +1,1 @@
+{"case_id": "support-001", "prompt": "A customer cannot reset their password.", "evidence": [{"source_id": "password-reset", "excerpt": "Use the password reset link."}], "required_source_ids": ["password-reset"], "expected_route": "account_access", "expected_answer_terms": ["reset link"], "expected_tool_names": [], "should_abstain": false, "dataset_version": "1.0"}
