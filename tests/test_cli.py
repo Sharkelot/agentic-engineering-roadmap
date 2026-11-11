@@ -61,3 +61,19 @@ def test_cli_compare_regression_and_invalid_artifact_exit_codes(tmp_path: Path) 
     result = invoke("compare", "--baseline", str(baseline), "--candidate", str(invalid_candidate),
                     "--max-regression", "0.02")
     assert result.returncode == 2
+
+
+def test_cli_run_rejects_incompatible_dataset_versions(tmp_path: Path) -> None:
+    cases = tmp_path / "incompatible.jsonl"
+    second = EvalCase(case_id="c2", prompt="Help", evidence=[], required_source_ids=[],
+                      expected_route="support", expected_answer_terms=["answer"],
+                      expected_tool_names=[], should_abstain=False, dataset_version="d2")
+    first = EvalCase(case_id="c1", prompt="Help", evidence=[], required_source_ids=[],
+                     expected_route="support", expected_answer_terms=["answer"],
+                     expected_tool_names=[], should_abstain=False, dataset_version="d1")
+    cases.write_text(first.model_dump_json() + "\n" + second.model_dump_json() + "\n")
+
+    result = invoke("run", "--cases", str(cases), "--out", str(tmp_path / "out"))
+
+    assert result.returncode == 2
+    assert "one dataset_version" in result.stderr

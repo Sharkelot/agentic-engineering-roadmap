@@ -9,7 +9,7 @@ See [ROADMAP.md](ROADMAP.md) for the eight-week plan. Lessons use deterministic 
 ## Local quickstart (Python 3.12)
 
 ```sh
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[dev,local-http]'
 python -m scripts.validate_course
 python -m pytest
 ruff check .
@@ -31,7 +31,7 @@ The image is built from the repository `Dockerfile`, runs as a non-root user, an
 
 ## CI and optional Kubernetes exercise
 
-CI on Python 3.12 installs `.[dev]` and runs pytest, Ruff, mypy on source/scripts, offline course validation, and a deterministic synthetic evaluation. It uses no credentials or remote model services.
+CI on Python 3.12 installs `.[dev,local-http]` and runs pytest, Ruff, mypy on source/scripts, offline course validation, and a deterministic synthetic evaluation. Strict mypy targets `src scripts`; pytest runs the tests, but tests are not type-checked. It uses no credentials or remote model services.
 
 For the optional Kubernetes Job, build the local image above, then apply `deploy/kubernetes/eval-job.yaml` to a cluster where that image is available. It writes to a temporary `emptyDir`; artifacts are ephemeral. This is an optional local exercise, not needed for the course; do not push to a registry or add credentials.
 

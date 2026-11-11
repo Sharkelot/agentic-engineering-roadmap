@@ -30,14 +30,18 @@ def test_workflow_contains_required_checks_and_no_secrets() -> None:
         assert check in text
     assert "3.12" in text
     assert "python -m pip install -e '.[dev,local-http]'" in text
+    assert "contents: read" in text
+    assert "3d3c42e5aac5ba805825da76410c181273ba90b1" in text
+    assert "6d4fd22b20465ccc0f7354476588e8df7c9ca0e0" in text
     assert not any(word in text for word in ("api_key", "api-key", "secrets.", "password:"))
 
 
 def test_dockerfile_runs_nonroot() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text()
     assert "python:3.12-slim" in dockerfile
-    assert "USER " in dockerfile
-    assert "agent-eval" in dockerfile
+    assert "USER 10001:10001" in dockerfile.splitlines()
+    assert 'ENTRYPOINT ["agent-eval"]' in dockerfile.splitlines()
+    assert 'CMD ["run", "--cases", "/app/synthetic-data/support_cases.jsonl", "--out", "/output/run"]' in dockerfile.splitlines()
 
 
 def test_kubernetes_job_structure() -> None:
