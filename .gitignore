@@ -8,3 +8,6 @@ build/
 dist/
 *.egg-info/
 uv.lock
+
+.superpowers/
+.worktrees/

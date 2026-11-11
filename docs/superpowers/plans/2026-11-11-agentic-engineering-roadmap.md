@@ -19,6 +19,7 @@
 - Do not add a repository license unless the user approves one; public visibility does not itself grant reuse rights.
 - Keep all readings as links and original explanations; do not copy third-party documentation text.
 - State that the repository is an independent learning project and is not affiliated with NVIDIA or any employer.
+- Do not track or publish `.superpowers/` SDD ledgers, briefs, reports, or review diffs.
 
 ## Review Focus
 
@@ -53,6 +54,7 @@
 - Create: `src/agent_eval_lab/models.py`, `src/agent_eval_lab/datasets.py`
 - Create: `synthetic-data/support_cases.jsonl`, `synthetic-data/README.md`
 - Modify: `pyproject.toml` to include the new `src/agent_eval_lab` package while preserving `scripts` imports.
+- Modify: `.gitignore` to exclude `.superpowers/` and `.worktrees/`.
 - Test: `tests/test_models.py`, `tests/test_datasets.py`, `tests/test_package_bootstrap.py`, `tests/test_public_data_disclaimer.py`
 
 **Interfaces:** Define Pydantic v2 models with `ConfigDict(extra="forbid")`: `EvidenceRef(source_id: str, excerpt: str)`; `EvalCase(case_id: str, prompt: str, evidence: list[EvidenceRef], required_source_ids: list[str], expected_route: str | None, expected_answer_terms: list[str], expected_tool_names: list[str], should_abstain: bool, dataset_version: str)`; `ToolCallRecord(name: str, succeeded: bool, error: str | None)`; `AgentResponse(answer: str, route: str | None, citation_ids: list[str], tool_calls: list[ToolCallRecord], abstained: bool, latency_ms: float, error: str | None)`; `MetricResult(name: str, value: float | None, status: Literal["scored", "unscored"], details: dict[str, str])`, where scored values are in `[0.0, 1.0]`; `TrialResult(case_id: str, status: Literal["completed", "failed"], response: AgentResponse | None, metrics: list[MetricResult], error: str | None)`; `RunManifest(run_id: str, agent_version: str, dataset_version: str, metric_version: str, created_at: datetime)` with an aware UTC timestamp; and `EvaluationRun(manifest: RunManifest, trials: list[TrialResult], expected_total: int)`. `load_cases(path: Path) -> list[EvalCase]` reads JSONL and rejects blank/duplicate IDs and malformed rows with line-specific errors.
@@ -61,6 +63,7 @@
 - [ ] In a disposable copy of the base commit with pytest provisioned, run only the package-presence and disclaimer tests; confirm assertion failures for the missing package/README, not a missing-test-runner or collection error.
 - [ ] Implement models and JSONL loader with explicit validation messages; update setuptools discovery for the `src` package without breaking the validator package.
 - [ ] Add `synthetic-data/README.md` identifying the fixture as synthetic and the repo as an independent project not affiliated with NVIDIA or any employer.
+- [ ] Ensure internal SDD artifacts are not tracked; remove any accidentally tracked report from the unpublished history before later tasks proceed.
 - [ ] Run `uv run --python 3.12 --extra dev python -m pytest tests/test_models.py tests/test_datasets.py tests/test_package_bootstrap.py tests/test_public_data_disclaimer.py -q` and `uv run --python 3.12 --extra dev mypy src/agent_eval_lab/models.py src/agent_eval_lab/datasets.py`; confirm pass.
 - [ ] Commit typed domain and data loading.
 
@@ -157,6 +160,7 @@
 
 - [ ] Run the full test, lint, type-check, lesson-validation, and sample-evaluation commands.
 - [ ] Scan staged files for likely secrets, employer/customer names, and private project paths; correct any finding before publishing.
+- [ ] Scan the tracked tree and commit history for internal SDD artifacts (`.superpowers/`); remove them from the unpublished history before creating or pushing the public remote.
 - [ ] Verify `gh auth status` and `gh api user --jq .login` identify `Sharkelot`; check that the proposed public repository name is available. If authentication cannot be verified, stop and ask the user to connect GitHub.
 - [ ] Create the public remote, push `main`, and verify the exact repository URL, visibility, pushed commit, and CI run by reading them back.
 - [ ] Report the repo URL, course contents, verification results, and any remaining blockers.
