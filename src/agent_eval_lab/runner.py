@@ -2,7 +2,8 @@ import asyncio
 from collections.abc import Sequence
 
 from .adapters import AgentAdapter
-from .models import EvalCase, TrialResult
+from .models import EvalCase, TrialResult, EvaluationRun, RunManifest
+from .metrics import score_trial
 
 
 async def run_agent_trials(
@@ -31,3 +32,10 @@ async def run_agent_trials(
         return TrialResult(case_id=case.case_id, status="failed", response=None, metrics=[], error=error)
 
     return list(await asyncio.gather(*(run_one(case) for case in cases)))
+
+
+async def evaluate(cases: Sequence[EvalCase], adapter: AgentAdapter, *, manifest: RunManifest, max_concurrency: int = 4, timeout_seconds: float = 10.0) -> EvaluationRun:
+    trials = await run_agent_trials(cases, adapter, max_concurrency=max_concurrency, timeout_seconds=timeout_seconds)
+    by_id = {case.case_id: case for case in cases}
+    trials = [trial.model_copy(update={"metrics": score_trial(by_id[trial.case_id], trial.response)}) for trial in trials]
+    return EvaluationRun(manifest=manifest, trials=trials, expected_total=len(cases))

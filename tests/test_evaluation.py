@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 from agent_eval_lab.adapters import DeterministicSupportAgent
-from agent_eval_lab.compare import evaluate
+from agent_eval_lab.runner import evaluate, run_agent_trials
 from agent_eval_lab.models import EvalCase, RunManifest
 
 

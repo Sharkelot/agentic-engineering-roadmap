@@ -50,3 +50,15 @@ def test_failed_trial_scores_zero_for_applicable_and_unscored_otherwise() -> Non
     assert all(item.value == 0.0 for item in results.values())
     case = make_case(required_source_ids=[], expected_route=None, expected_answer_terms=[], expected_tool_names=[], should_abstain=False)
     assert all(item.status == "unscored" for item in score_trial(case, None))
+
+
+def test_safe_abstention_is_exact_boolean_match_for_all_cases() -> None:
+    case = make_case(should_abstain=False)
+    assert {m.name:m for m in score_trial(case, response(abstained=True))}["safe_abstention"].value == 0.0
+    assert {m.name:m for m in score_trial(case, response(abstained=False))}["safe_abstention"].value == 1.0
+
+def test_expected_tool_metric_is_set_f1() -> None:
+    from agent_eval_lab.models import ToolCall
+    case=make_case(expected_tool_names=["a", "b"])
+    result={m.name:m for m in score_trial(case,response(tool_calls=[ToolCall(name="a", succeeded=True),ToolCall(name="extra", succeeded=True)]))}["expected_tool_success"]
+    assert result.value == 0.5

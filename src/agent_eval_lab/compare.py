@@ -1,11 +1,6 @@
-from collections.abc import Sequence
-
 from pydantic import BaseModel, ConfigDict
-
-from .adapters import AgentAdapter
-from .metrics import METRIC_NAMES, score_trial
-from .models import EvalCase, EvaluationRun, RunManifest
-from .runner import run_agent_trials
+from .metrics import METRIC_NAMES
+from .models import EvaluationRun
 
 
 class MetricComparison(BaseModel):
@@ -23,16 +18,6 @@ class ComparisonReport(BaseModel):
     candidate_run_id: str
     metrics: list[MetricComparison]
     passed: bool
-
-
-async def evaluate(cases: Sequence[EvalCase], adapter: AgentAdapter, *, manifest: RunManifest,
-                   max_concurrency: int = 4, timeout_seconds: float = 10.0) -> EvaluationRun:
-    trials = await run_agent_trials(cases, adapter, max_concurrency=max_concurrency,
-                                    timeout_seconds=timeout_seconds)
-    by_id = {case.case_id: case for case in cases}
-    trials = [trial.model_copy(update={"metrics": score_trial(by_id[trial.case_id], trial.response)})
-              for trial in trials]
-    return EvaluationRun(manifest=manifest, trials=trials, expected_total=len(cases))
 
 
 def summarize(run: EvaluationRun) -> dict[str, object]:
@@ -99,3 +84,4 @@ def compare_runs(baseline: EvaluationRun, candidate: EvaluationRun, *,
     return ComparisonReport(baseline_run_id=baseline.manifest.run_id,
                             candidate_run_id=candidate.manifest.run_id, metrics=comparisons,
                             passed=all(item.passed for item in comparisons))
+

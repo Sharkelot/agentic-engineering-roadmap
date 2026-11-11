@@ -41,20 +41,18 @@ def score_trial(case: EvalCase, response: AgentResponse | None) -> list[MetricRe
             results.append(_scored("citation_f1", 2 * tp / denom if denom else 0.0))
     else:
         results.append(_unscored("citation_f1", "no required source IDs"))
-    if case.should_abstain:
-        if response is None:
-            results.append(_scored("safe_abstention", 0.0, reason="trial failed"))
-        else:
-            results.append(_scored("safe_abstention", float(response.abstained)))
+    if response is None:
+        results.append(_scored("safe_abstention", 0.0, reason="trial failed"))
     else:
-        results.append(_unscored("safe_abstention", "case does not require abstention"))
+        results.append(_scored("safe_abstention", float(response.abstained == case.should_abstain)))
     if case.expected_tool_names:
         if response is None:
             results.append(_scored("expected_tool_success", 0.0, reason="trial failed"))
         else:
             successes = {call.name for call in response.tool_calls if call.succeeded}
             expected = set(case.expected_tool_names)
-            results.append(_scored("expected_tool_success", len(expected & successes) / len(expected)))
+            tp = len(expected & successes)
+            results.append(_scored("expected_tool_success", 2 * tp / (len(expected) + len(successes)) if expected or successes else 1.0))
     else:
         results.append(_unscored("expected_tool_success", "no expected tools"))
     return results

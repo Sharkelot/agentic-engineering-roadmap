@@ -56,3 +56,24 @@ def test_summary_includes_coverage_and_failed_zero() -> None:
     item = result["metrics"]["answer_term_support"]
     assert result["failed"] == 1
     assert item == {"mean": 0.5, "applicable_count": 2, "scored_count": 2, "coverage": 1.0}
+
+
+def test_summary_nonapplicable_count_is_unscored_and_coverage_uses_dataset_total() -> None:
+    evaluation=run("r",cases=("c1",))
+    evaluation.trials[0].metrics[0].status="unscored"
+    evaluation.trials[0].metrics[0].value=None
+    evaluation.expected_total=2
+    item=summarize(evaluation)["metrics"]["answer_term_support"]
+    assert item == {"mean":None,"applicable_count":0,"scored_count":0,"unscored_count":1,"coverage":0.0}
+
+def test_comparison_rejects_invalid_values_and_no_comparable_scores() -> None:
+    bad=run("b"); bad.trials[0].metrics[0].value=1.5
+    try: compare_runs(bad,run("c"))
+    except ValueError: pass
+    else: raise AssertionError("invalid value accepted")
+    empty=run("e")
+    for t in empty.trials:
+        for m in t.metrics: m.status="unscored"; m.value=None
+    try: compare_runs(empty,empty.model_copy(update={"manifest":empty.manifest.model_copy(update={"run_id":"e2"})}))
+    except ValueError: pass
+    else: raise AssertionError("empty comparison accepted")
