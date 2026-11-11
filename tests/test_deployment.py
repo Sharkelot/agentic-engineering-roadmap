@@ -29,6 +29,7 @@ def test_workflow_contains_required_checks_and_no_secrets() -> None:
     for check in ("pytest", "ruff", "mypy src scripts", "validate_course", "agent-eval"):
         assert check in text
     assert "3.12" in text
+    assert "python -m pip install -e '.[dev,local-http]'" in text
     assert not any(word in text for word in ("api_key", "api-key", "secrets.", "password:"))
 
 
@@ -47,5 +48,6 @@ def test_kubernetes_job_structure() -> None:
     assert container["image"] == "agentic-engineering-roadmap:local"
     assert container["volumeMounts"]
     assert pod["securityContext"]["runAsNonRoot"] is True
+    assert pod["securityContext"]["fsGroup"] == 10001
     assert not any(key in container for key in ("envFrom", "env"))
     assert "emptyDir" in pod["volumes"][0]
