@@ -7,7 +7,11 @@ Use this before trusting or sharing a run report. The checklist is a review aid,
 - [ ] Tie each metric to a criterion; document known blind spots and use human review where needed.
 - [ ] Keep inputs synthetic and version the dataset, agent, and metric definitions.
 
-## Validate the run
+- [ ] Review representative citations against evidence; verify expected tool calls and safe abstention on cases requiring it, rather than trusting grader labels alone.
+- [ ] For repeated runs, report dispersion and uncertainty limits; check toy-judge confidence calibration against human labels with adequate sample size before using confidence claims.
+- [ ] Inspect any trace attributes with an allowlist redaction test; keep synthetic traces local and export nothing.
+- [ ] For resumed/sharded runs, define idempotency and cancellation behavior and keep retry policy bounded and explicit.
+- [ ] Verify local container/CI artifacts and command output; treat Kubernetes as optional.
 - [ ] Confirm expected case count, unique case IDs, and explicit failed-trial count.
 - [ ] Preserve unscored applicability separately from scored zeroes.
 - [ ] Check artifact schema, metric names, ranges, and reproducibility.

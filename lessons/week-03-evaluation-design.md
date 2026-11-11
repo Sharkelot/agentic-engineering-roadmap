@@ -2,6 +2,7 @@
 
 ## Objectives
 - Turn a product claim into observable criteria and representative test cases.
+- Map citation/RAG evidence, required tool calls, and safe abstention to existing graders.
 - Separate a dataset, a grader, and human review.
 
 ## Prerequisites
@@ -14,18 +15,18 @@
 - [Week 2](week-02-schemas-data.md), [reading map](../references/reading-list.md).
 
 ## Build
-Choose one synthetic support case and write a one-sentence quality objective, one observable pass/fail rule, and one limitation of that rule. Inspect `score_trial` in `src/agent_eval_lab/metrics.py`; relate the criterion to an existing deterministic metric or explain why it needs human judgment. Do not claim lexical matching proves semantic correctness.
+Using only synthetic cases in `synthetic-data/support_cases.jsonl`, choose one case with required source IDs, one with expected tools, and one with `should_abstain=true`. For each, make a response fixture from the case schema and write a three-column mapping: expected evidence/behavior, response field to inspect, grader in `src/agent_eval_lab/metrics.py`. Map source IDs to `citation_f1`, successful required tool names to `expected_tool_success`, and the abstention flag to `safe_abstention`. Run `uv run python -c 'from pathlib import Path; from agent_eval_lab.datasets import load_cases; print(len(load_cases(Path("synthetic-data/support_cases.jsonl"))))'` to verify the dataset loads; inspect the grader to confirm your mapping. Add one counterexample where lexical matching can pass despite unsupported meaning, and state what human review must check. Do not call a model or service.
 
 ## Check your understanding
 1. How does a measurable criterion differ from a broad aspiration?
 2. Why can a grader agree with itself and still be wrong?
-3. When should human review complement an automated score?
+3. Which existing grader checks required tool success, and what does it miss?
 
 ## Reflection
 What quality dimension does your chosen rule miss, and what evidence would help address that gap?
 
 ## Done when
-- [ ] Your objective, rule, and limitation refer only to a synthetic case and are reviewable.
-- [ ] You identify whether the rule is automated or needs human judgment.
+- [ ] The three synthetic examples map evidence, response fields, and existing graders accurately.
+- [ ] You give a lexical false-positive counterexample and a human-review criterion.
 - [ ] Attempt the exercise and quiz before opening [answer hints](../solutions/README.md); ask follow-up questions as needed.
 - [ ] No hosted evaluation service, paid API, or secret is required.

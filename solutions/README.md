@@ -14,7 +14,9 @@ Try each lesson's exercise and three retrieval questions before reading this fil
 - A useful objective names an observable behavior and a case population. A deterministic grader can consistently implement a flawed proxy; human review and iteration address gaps.
 - The hosted Evals material is optional reading; no service or credential is needed.
 
-## Week 4 — Metrics and regression
+- A concrete Week 3 mapping pairs required IDs with `citation_f1`, successful expected tool names with `expected_tool_success`, and the abstention label with `safe_abstention`; these are deterministic proxies, not semantic verification.
+- The Week 4 repeated-run table and its human labels/confidence inputs are explicitly didactic synthetic values. Ranges over five examples are not a population uncertainty estimate; calibration compares confidence groups with observed label frequencies and needs more evidence.
+- For redaction, return an allowlisted copy of synthetic attributes and assert private fields/values are absent while the source mapping stays unchanged; never configure an exporter.
 - For sets, precision = TP/(TP+FP), recall = TP/(TP+FN), and F1 = 2TP/(2TP+FP+FN), subject to the documented zero-division and averaging convention.
 - This repository's citation F1 uses required source IDs and returned IDs. Unscored means not applicable, not a failure/zero. The compare command requires actual compatible run directories and returns a regression status; never invent its report.
 - Prometheus types describe telemetry, not classification scoring.
