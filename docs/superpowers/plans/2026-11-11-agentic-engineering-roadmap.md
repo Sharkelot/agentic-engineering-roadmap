@@ -76,9 +76,9 @@
 **Interfaces:** Define `class AgentAdapter(Protocol)` with `async def run(self, case: EvalCase) -> AgentResponse`; provide `DeterministicSupportAgent`. Signature: `async def run_agent_trials(cases: Sequence[EvalCase], adapter: AgentAdapter, *, max_concurrency: int = 4, timeout_seconds: float = 10.0) -> list[TrialResult]`. The semaphore caps concurrent calls; each input yields exactly one completed or failed `TrialResult` with `metrics=[]`. On error/timeout, record a sanitized error string and continue other cases; retries are out of scope for v1.
 
 - [ ] Write tests for success, bounded concurrency, timeout, raised exception, and preservation of one result per input case.
-- [ ] Run `python -m pytest tests/test_runner.py -q`; confirm failures.
+- [ ] Run `uv run --python 3.12 --extra dev python -m pytest tests/test_runner.py -q`; confirm failures.
 - [ ] Implement the protocol, deterministic adapter, timeout handling, and error capture.
-- [ ] Run the targeted test and type checks; confirm pass.
+- [ ] Run `uv run --python 3.12 --extra dev python -m pytest tests/test_runner.py -q` and `uv run --python 3.12 --extra dev mypy src/agent_eval_lab/adapters.py src/agent_eval_lab/runner.py`; confirm pass.
 - [ ] Commit the runner.
 
 ### Task 4: Metrics, summaries, and regression comparisons
